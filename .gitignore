@@ -1,4 +1,8 @@
 # Ignore node_modules
 node_modules/
 
+# Ignore database
 *.db
+
+#  Ignore the csv file
+National.csv
