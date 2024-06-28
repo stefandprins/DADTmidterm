@@ -38,4 +38,4 @@ db_conn = db_connection(
 
 # 
 if db_conn.is_connected():
-    cursor = db_conn.cursor()
+    cursor = db_conn.cursor() 
