@@ -1,13 +1,13 @@
 const express = require('express');
 const app = express();
 const port = 8088;
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 // Create the connection for the mySQL database.
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '',
+  password: 'dadt@midterm',
   database: 'election_results',
 });
 
