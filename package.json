@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-db": "mysql -u root -pdadt@midterm -h localhost < db_schema.sql",
+    "delete-db": "mysql -u root -pdadt@midterm -h localhost < db_delete.sql",
     "start": "node index.js"
   },
   "author": "",

@@ -4,12 +4,17 @@ import mysql.connector
 from mysql.connector import Error
 
 # ----------------------------------------------------
-# I have code this part based on existing examples from the internet.
+# I have coded the database connection based on examples from youtube.
 # ----------------------------------------------------
 
 #  Function for reading the csv file.
 def read_csv(filepath):
-    return pd.read_csv(filepath)
+
+    df = pd.read_csv(filepath)
+
+    filtered_df = df[df['Province'].str.strip() != 'Out of Country']
+    
+    return filtered_df
 
 # Function for connecting with the database
 def db_connection(hostName, userName, userPassword, dbName):
@@ -40,6 +45,16 @@ def query_execute(cursor, sql, data=None):
     except Error as e:
         print(f"Execute error occurred: {e}")
 
+#  Function to execute the sql queries.
+def query_executemany(cursor, sql, data=None):
+    try:
+        if sql:
+            cursor.executemany(sql, data)
+        else:
+            cursor.executemany(sql)
+    except Error as e:
+        print(f"Execute many error occurred: {e}")
+
 # Function to commit the sql queries.
 def query_commit(db_conn):
     try:
@@ -55,16 +70,16 @@ def insert_province(cursor, db_conn, csvfile):
     # Track the id of the provinces
     province_ids = {}
 
+    # Define the sql queries
+    insert_sql = f"INSERT INTO provinces (province_name) VALUES (%s)"
+    select_sql = "SELECT provinceID FROM provinces WHERE province_name = %s"
+
     for province in provinces:
-        print(province)
-        sql = f"INSERT INTO provinces (province_name) VALUES (%s)"
+        # Insert the province data into the database.
+        query_execute(cursor, insert_sql, (province,))
 
-        query_execute(cursor, sql, (province,))
-
-        # Read the id of the province.
-        sql = "SELECT provinceID FROM provinces WHERE province_name = %s"
-
-        query_execute(cursor, sql, (province,))
+        # Select the id of the province.
+        query_execute(cursor, select_sql, (province,))
 
         # Store the province id
         province_id = cursor.fetchone()[0]
@@ -83,6 +98,8 @@ def insert_municipality(cursor, db_conn, csvfile, province_ids):
 
     # Track the id of the municipalities
     municipality_ids = {}
+
+    # Define the sql queries
 
     for municipality, province in unique_pairs:
 
@@ -115,20 +132,41 @@ def insert_voting_districts(cursor, db_conn, csvfile, municipality_ids):
     # Track the id of the voting districts
     voting_districts_ids = {}
 
+    batchSize = 1000
+    batch = []
+
     for index, row in unique_voting_districts.iterrows():
         
         # Read the province ID that was stored
         municipality_name = row['Municipality'].split(' - ', 1)[1]
         municipality_id = municipality_ids[municipality_name]
 
-        # Read the municipality names but remove the prefix
+        batch.append((row['VD_Number'], row['VS_Name'], row['Registered_Population'], row['Spoilt_Votes'], row['Total_Valid_Votes'], municipality_id))
+
+        if len(batch) >= batchSize:
+            # Read the municipality names but remove the prefix
+            sql = f"INSERT INTO voting_districts (vd_number, vs_name, registered_voters, spoilt_votes, total_votes, municipalityID) VALUES (%s, %s, %s, %s, %s, %s)"
+
+            # print(f"{row['VD_Number']}:{row['VS_Name']}:{row['Registered_Population']}:{row['Spoilt_Votes']}:{row['Total_Valid_Votes']}:{municipality_id}")
+            query_executemany(cursor,sql, batch)
+            # query_execute(cursor, sql, (row['VD_Number'], row['VS_Name'], row['Registered_Population'], row['Spoilt_Votes'], row['Total_Valid_Votes'], municipality_id))
+
+            query_commit(db_conn)
+            batch = []
+
+    if batch:
         sql = f"INSERT INTO voting_districts (vd_number, vs_name, registered_voters, spoilt_votes, total_votes, municipalityID) VALUES (%s, %s, %s, %s, %s, %s)"
 
-        query_execute(cursor, sql, (row['VD_Number'], row['VS_Name'], row['Registered_Population'], row['Spoilt_Votes'], row['Total_Valid_Votes'], municipality_id))
+        # print(f"{row['VD_Number']}:{row['VS_Name']}:{row['Registered_Population']}:{row['Spoilt_Votes']}:{row['Total_Valid_Votes']}:{municipality_id}")
+        query_executemany(cursor,sql, batch)
+        # query_execute(cursor, sql, (row['VD_Number'], row['VS_Name'], row['Registered_Population'], row['Spoilt_Votes'], row['Total_Valid_Votes'], municipality_id))
 
+        query_commit(db_conn)
+
+    for index, row in unique_voting_districts.iterrows():
         """ """
         sql = "SELECT vd_number FROM voting_districts WHERE vd_number = %s"
-
+        # print(f"{row['VD_Number']}")
         query_execute(cursor, sql, (row['VD_Number'],))
 
         voting_districts_id = cursor.fetchone()[0]
@@ -136,7 +174,7 @@ def insert_voting_districts(cursor, db_conn, csvfile, municipality_ids):
 
 
 
-    query_commit(db_conn)
+    # query_commit(db_conn)
     return voting_districts_ids
 
 
@@ -154,7 +192,7 @@ def insert_parties(cursor, db_conn, csvfile):
         
         # Read the municipality names but remove the prefix
         sql = f"INSERT INTO parties (party_name) VALUES (%s)"
-
+        print(f"{row['sPartyName']}")
         query_execute(cursor, sql, (row['sPartyName'],))
 
         """ """
@@ -173,29 +211,42 @@ def insert_results(cursor, db_conn, csvfile, voting_districts_ids, party_ids):
     csvfile.columns = csvfile.columns.str.strip()
 
     unique_party_results = csvfile[['VD_Number', 'sPartyName', 'Party_Votes']].drop_duplicates()
-    # print(unique_party_results.columns)
+    print(unique_party_results.head(5))
+
+    batchSize = 1000
+    batch = []
     # print(df.columns)
     for index, row in unique_party_results.iterrows():
         # Read the province ID that was stored
         vd_number_id = voting_districts_ids[row['VD_Number']]
         party_id = party_ids[row['sPartyName']]
 
-        print(party_id)
         
+        batch.append((vd_number_id, party_id, row['Party_Votes']))
+
+        if len(batch) >= batchSize:
+            # Read the municipality names but remove the prefix
+            sql = f"INSERT INTO party_results (vd_numberID, partyID, party_result) VALUES (%s, %s, %s)"
+            query_executemany(cursor,sql, batch)
+            # cu//rsor.executemany(sql, batch)
+            # query_execute(cursor, sql, (vd_number_id, party_id, row['Party_Votes']))
+            query_commit(db_conn)
+            batch = []
+        # break
+
+    if batch:
         # Read the municipality names but remove the prefix
-        # sql = f"INSERT INTO party_results (vd_numberID, partyID, party_result) VALUES (%s, %s, %s)"
-
-        # query_execute(cursor, sql, (vd_number_id, party_id, row['Party_Votes']))
-
-
-
-    query_commit(db_conn)
+        sql = f"INSERT INTO party_results (vd_numberID, partyID, party_result) VALUES (%s, %s, %s)"
+        query_executemany(cursor,sql, batch)
+        query_commit(db_conn)
+    # query_commit(db_conn)
 
 # ----------------------------------------------------
 
 
 # Path for the csv file
 electionResultsCSV = read_csv('data/National.csv')
+
 
 # Connect with the database
 db_conn = db_connection(
