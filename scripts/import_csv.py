@@ -23,10 +23,30 @@ def db_connection(hostName, userName, userPassword, dbName):
     except Error as e:
         print(f'Error: {e}')
         return None
-    
+
+#  Function to execute the sql queries.
+def query_execute():
+    pass
+
+# Function to commit the sql queries.
+def query_commit():
+    pass
+
+
+# Function to return the sql query with its data from the csv file.
+def insert_province(csvfile):
+    provinces = csvfile['Province'].unique()
+
+    for province in provinces:
+        print(province)
+        sql = f"INSERT INTO provinces (province_name) VALUES (%s)"
+
+        cursor.execute(sql, (province,))
+
+    db_conn.commit()
 
 # Path for the csv file
-readCSVPath = read_csv('./import_csv.py')
+electionResultsCSV = read_csv('data/National.csv')
 
 # Connect with the database
 db_conn = db_connection(
@@ -38,4 +58,16 @@ db_conn = db_connection(
 
 # 
 if db_conn.is_connected():
-    cursor = db_conn.cursor() 
+    cursor = db_conn.cursor()
+
+    insert_province(electionResultsCSV)
+
+    # provinces = electionResultsCSV['Province'].unique()
+
+    # for province in provinces:
+    #     print(province)
+    #     sql = f"INSERT INTO provinces (province_name) VALUES (%s)"
+
+    #     cursor.execute(sql, (province,))
+
+    # db_conn.commit()
