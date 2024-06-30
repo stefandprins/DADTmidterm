@@ -8,7 +8,6 @@ const getAllCountryVotes = async (req, res) => {
     const headers = ['party_name', 'total_votes', 'vote_percentage'];
     res.json({ headers, results });
   } catch (err) {
-    console.error('Error fetching country votes:', err);
     res.status(500).send({ error: 'Failed to fetch country votes' });
   }
 };
