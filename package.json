@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-db": "mysql -u root -pdadt@midterm -h localhost < db_schema.sql",
     "delete-db": "mysql -u root -pdadt@midterm -h localhost < db_delete.sql",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +16,7 @@
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "moustache": "^0.0.4",
+    "mustache-express": "^1.3.2",
     "mysql2": "^3.10.1"
   },
   "devDependencies": {

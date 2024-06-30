@@ -1,21 +1,18 @@
 const express = require('express');
+const mustacheExpress = require('mustache-express');
+const path = require('path');
 const app = express();
 const port = 8088;
-const mysql = require('mysql2');
 
-// Create the connection for the mySQL database.
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'dadt@midterm',
-  database: 'election_results',
-});
+// Mustache
+app.engine('mustache', mustacheExpress());
+app.set('view engine', 'mustache');
+app.set('views', path.join(__dirname, 'views'));
+// Import route definitions from routes/resultsRoutes
+const resultsRoutes = require('./routes/resultsRoutes');
 
-// Connect to the mySQL database.
-db.connect(function (err) {
-  if (err) throw err;
-  console.log('Connected!');
-});
+// Assign the resultsRoutes to the express application
+app.use('/', resultsRoutes);
 
 // Listen to the specified port.
 app.listen(port, () => {
