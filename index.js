@@ -4,11 +4,8 @@ const path = require('path');
 const app = express();
 const port = 8088;
 
-// Mustache
-app.engine('mustache', mustacheExpress());
-app.set('view engine', 'mustache');
-app.set('views', path.join(__dirname, 'views'));
-// Import route definitions from routes/resultsRoutes
+app.use(express.static('public'));
+
 const resultsRoutes = require('./routes/resultsRoutes');
 
 // Assign the resultsRoutes to the express application
