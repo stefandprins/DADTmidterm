@@ -53,19 +53,3 @@ CREATE TABLE IF NOT EXISTS party_results (
     -- Define a composite primary key
     PRIMARY KEY (vd_numberID, partyID)
 );
-
-
-
--- -- Create the join table to link voting district with party results
--- CREATE TABLE IF NOT EXISTS district_results (
---     vd_number INTEGER NOT NULL,
---     resultID INTEGER NOT NULL,
-
-
---     -- Define the foreign key
---     FOREIGN KEY (vd_number) REFERENCES voting_districts(vd_number),
---     FOREIGN KEY (resultID) REFERENCES party_results(resultID),
-    
---     -- Define a composite primary key
---     PRIMARY KEY (vd_number, resultID)
--- );

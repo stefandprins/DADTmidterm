@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-db": "mysql -u root -pdadt@midterm -h localhost < db_schema.sql",
-    "delete-db": "mysql -u root -pdadt@midterm -h localhost < db_delete.sql",
+    "build-db": "mysql -u root -pdadt@midterm -h 127.0.0.1 < db_schema.sql",
+    "delete-db": "mysql -u root -pdadt@midterm -h 127.0.0.1 < db_delete.sql",
     "start": "node index.js",
     "dev": "nodemon index.js"
   },

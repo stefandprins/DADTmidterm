@@ -236,7 +236,7 @@ electionResultsCSV = read_csv('data/National.csv')
 
 # Connect with the database
 db_conn = db_connection(
-                        'localhost',
+                        '127.0.0.1',
                         'root',
                         'dadt@midterm',
                         'election_results'
