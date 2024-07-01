@@ -89,7 +89,6 @@ const getAllCountryVotes = async (req, res) => {
 const getAllProvinces = async (req, res) => {
   try {
     const provinces = await resultsService.getAllProvinces();
-    console.log(provinces);
     res.json({ provinces });
   } catch (err) {
     res.status(500).send({ error: 'Failed to fetch province names' });
