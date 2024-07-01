@@ -1,5 +1,71 @@
 const resultsService = require('../services/resultsService');
 
+// Function to take the response from the database and serve the getAllTurnoutMunicipalities to the page.
+const getAllTurnoutMunicipalities = async (req, res) => {
+  try {
+    const results = await resultsService.getAllTurnoutMunicipalities();
+    const headers = [
+      'province_name',
+      'municipality_name',
+      'registered_votes',
+      'total_votes',
+      'turnout',
+    ];
+    res.json({ headers, results });
+  } catch (err) {
+    res.status(500).send({ error: 'Failed to fetch country votes' });
+  }
+};
+
+// Function to take the response from the database and serve the getAllTurnoutProvinces to the page.
+const getAllTurnoutProvinces = async (req, res) => {
+  try {
+    const results = await resultsService.getAllTurnoutProvinces();
+    const headers = [
+      'province_name',
+      'registered_votes',
+      'total_votes',
+      'turnout',
+    ];
+    res.json({ headers, results });
+  } catch (err) {
+    res.status(500).send({ error: 'Failed to fetch country votes' });
+  }
+};
+
+// Function to take the response from the database and serve the getAllSpoiltMunicipalities to the page.
+const getAllSpoiltMunicipalities = async (req, res) => {
+  try {
+    const results = await resultsService.getAllSpoiltMunicipalities();
+    const headers = [
+      'province_name',
+      'municipality_name',
+      'registered_votes',
+      'spoilt_votes',
+      'spoilt_percentage',
+    ];
+    res.json({ headers, results });
+  } catch (err) {
+    res.status(500).send({ error: 'Failed to fetch spoilt votes' });
+  }
+};
+
+// Function to take the response from the database and serve the getAllSpoiltProvinces to the page.
+const getAllSpoiltProvinces = async (req, res) => {
+  try {
+    const results = await resultsService.getAllSpoiltProvinces();
+    const headers = [
+      'province_name',
+      'registered_votes',
+      'total_spoilt_votes',
+      'spoilt_vote_percentage',
+    ];
+    res.json({ headers, results });
+  } catch (err) {
+    res.status(500).send({ error: 'Failed to fetch spoilt votes' });
+  }
+};
+
 // Function to take the response from the database and serve the getAllCountryVotes to the page.
 const getAllCountryVotes = async (req, res) => {
   const { provinceID, filter } = req.query;
@@ -34,6 +100,10 @@ const getAllPartyNames = async (req, res) => {
 };
 
 module.exports = {
+  getAllTurnoutMunicipalities,
+  getAllTurnoutProvinces,
+  getAllSpoiltMunicipalities,
+  getAllSpoiltProvinces,
   getAllCountryVotes,
   getAllProvinces,
   getAllPartyNames,

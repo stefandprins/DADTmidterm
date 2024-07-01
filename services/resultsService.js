@@ -1,13 +1,126 @@
 const db = require('../models/db');
+// Function to query the database for the province names
+const getAllTurnoutMunicipalities = () => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT 
+                      provinces.province_name,
+                      municipalities.municipality_name,
+                      SUM(voting_districts.registered_voters) AS registered_votes,
+                      SUM(voting_districts.total_votes) AS total_votes,
+                      ROUND((SUM(voting_districts.total_votes) / SUM(voting_districts.registered_voters) ) *100, 2) AS turnout
+                  FROM 
+                      voting_districts
+                  JOIN 
+                      municipalities ON voting_districts.municipalityID = municipalities.municipalityID
+                  JOIN
+                      provinces ON municipalities.provinceID = provinces.provinceID
+                  GROUP BY 
+                      municipalities.municipality_name
+                  ORDER BY 
+                      turnout DESC;`;
+    db.query(query, (err, results) => {
+      if (err) {
+        return reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+// Function to query the database for the province names
+const getAllTurnoutProvinces = () => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT 
+                      provinces.province_name,
+                      SUM(voting_districts.registered_voters) AS registered_votes,
+                      SUM(voting_districts.total_votes) AS total_votes,
+                      ROUND((SUM(voting_districts.total_votes) / SUM(voting_districts.registered_voters) ) *100, 2) AS turnout
+                  FROM 
+                      voting_districts
+                  JOIN 
+                      municipalities ON voting_districts.municipalityID = municipalities.municipalityID
+                  JOIN
+                      provinces ON municipalities.provinceID = provinces.provinceID
+                  GROUP BY 
+                      provinces.province_name
+                  ORDER BY 
+                      turnout DESC;`;
+    db.query(query, (err, results) => {
+      if (err) {
+        return reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+// Function to query the database for the province names
+const getAllSpoiltMunicipalities = () => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT 
+                        provinces.province_name,
+                        municipalities.municipality_name,
+                        SUM(voting_districts.registered_voters) AS registered_votes,
+                        SUM(voting_districts.spoilt_votes) AS spoilt_votes,
+                        ROUND((SUM(voting_districts.spoilt_votes) / SUM(voting_districts.registered_voters) ) *100, 2) AS spoilt_percentage
+                    FROM 
+                        voting_districts
+                    JOIN 
+                        municipalities ON voting_districts.municipalityID = municipalities.municipalityID
+                    JOIN
+                        provinces ON municipalities.provinceID = provinces.provinceID
+                    GROUP BY 
+                        municipalities.municipality_name
+                    ORDER BY 
+                        spoilt_percentage DESC;`;
+    db.query(query, (err, results) => {
+      if (err) {
+        return reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+// Function to query the database for the province names
+const getAllSpoiltProvinces = () => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT 
+                      provinces.province_name,
+                      SUM(voting_districts.registered_voters) AS registered_votes,
+                      SUM(voting_districts.spoilt_votes) AS total_spoilt_votes,
+                      ROUND((SUM(voting_districts.spoilt_votes) / SUM(voting_districts.registered_voters)) * 100, 2) AS spoilt_vote_percentage
+                  FROM 
+                      voting_districts
+                  JOIN 
+                      municipalities ON voting_districts.municipalityID = municipalities.municipalityID
+                  JOIN
+                      provinces ON municipalities.provinceID = provinces.provinceID
+                  GROUP BY 
+                      provinces.province_name
+                  ORDER BY 
+                      spoilt_vote_percentage DESC;`;
+    db.query(query, (err, results) => {
+      if (err) {
+        return reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
 
 const getAllCountryVotes = (provinceID, filter) => {
   return new Promise((resolve, reject) => {
     let params = [];
-    let subqueryWhereClause = '';
+    // let subqueryWhereClause = '';
     let whereClause = '';
     let limitClause = '';
     if (provinceID && provinceID !== '0') {
-      subqueryWhereClause = 'WHERE municipalities.provinceID = ?';
+      // subqueryWhereClause = 'WHERE municipalities.provinceID = ?';
       whereClause = 'WHERE municipalities.provinceID = ?';
       params.push(provinceID, provinceID);
     }
@@ -28,7 +141,7 @@ const getAllCountryVotes = (provinceID, filter) => {
                                       voting_districts
                                   JOIN 
                                       municipalities ON voting_districts.municipalityID = municipalities.municipalityID
-                                  ${subqueryWhereClause}
+                                  ${whereClause}
                           ) * 100.0, 2
                       ) AS vote_percentage
                   FROM
@@ -87,6 +200,10 @@ const getAllPartyNames = () => {
 };
 
 module.exports = {
+  getAllTurnoutMunicipalities,
+  getAllTurnoutProvinces,
+  getAllSpoiltMunicipalities,
+  getAllSpoiltProvinces,
   getAllCountryVotes,
   getAllProvinces,
   getAllPartyNames,

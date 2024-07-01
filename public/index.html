@@ -24,10 +24,16 @@
         border: 1px solid #ddd;
         border-radius: 5px;
         background-color: #f2f2f2;
-        transition: background-color 0.3s;
+        transition: background-color 0.1s;
       }
-      .button button:hover {
+      button:not(.active):hover {
         background-color: #e2e2e2;
+      }
+
+      .button .active {
+        background-color: #c8def5;
+        color: black;
+        border: 1px solid #7890ac;
       }
 
       table {
@@ -38,12 +44,29 @@
 
       th,
       td {
-        border: 1px solid #ddd;
+        border: 1px solid #7890ac;
         padding: 8px;
         text-align: left;
       }
       th {
-        background-color: #f2f2f2;
+        background-color: #98b8db;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #ddecfd;
+      }
+
+      tbody tr:hover {
+        background-color: #c8def5;
+      }
+
+      select,
+      input[type='number'] {
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 13px;
       }
     </style>
   </head>
@@ -54,31 +77,20 @@
     <select id="province-select">
       <option value="0">All Provinces</option>
     </select>
-    <!-- <option value="Eastern Cape">Eastern Cape</option>
-      <option value="Free State">Free State</option>
-      <option value="Gauteng">Gauteng</option>
-      <option value="KwaZulu-Natal">KwaZulu-Natal</option>
-      <option value="Limpopo">Limpopo</option>
-      <option value="Mpumalanga">Mpumalanga</option>
-      <option value="North West">North West</option>
-      <option value="Northern Cape">Northern Cape</option>
-      <option value="Western Cape">Western Cape</option> -->
 
     <label for="filter-select">Show:</label>
     <select id="filter-select">
       <option value="0">All Parties</option>
       <option value="1">Top 3</option>
     </select>
-
-    <label for="party-select">Choose a Party:</label>
-    <select id="party-select">
-      <option value="0">All Parties</option>
-    </select>
-
     <div class="button">
-      <button id="turnout-button">Voter Turnout</button>
-      <button id="spoilt-button">Spoilt Votes</button>
       <button id="country-button">Country Votes</button>
+    </div>
+    <div class="button">
+      <button id="turnout-button">Turnout by Municipalities</button>
+      <button id="turnout-provinces-button">Turnout by Provinces</button>
+      <button id="spoilt-button">Spoilt Votes by Municipalities</button>
+      <button id="spoilt-provinces-button">Spoilt Votes by Provinces</button>
     </div>
 
     <table id="data-table">
@@ -101,7 +113,6 @@
               const option = document.createElement('option');
               option.value = province.provinceID;
               option.textContent = province.province_name;
-              console.log(option);
               provinceSelect.appendChild(option);
             });
           })
@@ -113,26 +124,88 @@
       // Call populateParties on page load
       document.addEventListener('DOMContentLoaded', populateProvinces);
 
-      // Populate the parties dropdown
-      function populateParties() {
-        fetch('parties')
+      document.addEventListener('DOMContentLoaded', function () {
+        const buttons = document.querySelectorAll('.button button');
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', function () {
+            // Remove the 'active' class from all buttons
+            buttons.forEach((btn) => btn.classList.remove('active'));
+
+            // Add the 'active' class to the button when clicked on
+            this.classList.add('active');
+          });
+        });
+      });
+
+      // Fetch the voter turnout based on the selection
+      document
+        .getElementById('turnout-button')
+        .addEventListener('click', () => {
+          // Show loading dialog
+          showLoadingDialog();
+
+          fetch(`/turnout-votes`)
+            .then((response) => response.json())
+            .then((data) => {
+              updateTable(data.headers, data.results);
+            })
+            .catch((error) =>
+              console.error('Error fetching turnout votes:', error)
+            );
+        });
+
+      // Fetch the voter turnout based on the selection
+      document
+        .getElementById('turnout-provinces-button')
+        .addEventListener('click', () => {
+          // Show loading dialog
+          showLoadingDialog();
+
+          fetch(`/turnout-provinces-votes`)
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              updateTable(data.headers, data.results);
+            })
+            .catch((error) =>
+              console.error('Error fetching turnout votes:', error)
+            );
+        });
+
+      // Fetch the spoilt votes based on the selection
+      document.getElementById('spoilt-button').addEventListener('click', () => {
+        // Show loading dialog
+        showLoadingDialog();
+
+        fetch(`/spoilt-municipality-votes`)
           .then((response) => response.json())
-          .then((parties) => {
-            const partySelect = document.getElementById('party-select');
-            parties.parties.forEach((party) => {
-              const option = document.createElement('option');
-              option.value = party.partyID;
-              option.textContent = party.party_name;
-              partySelect.appendChild(option);
-            });
+          .then((data) => {
+            console.log(data);
+            updateTable(data.headers, data.results);
           })
           .catch((error) =>
-            console.error('Error fetching party names:', error)
+            console.error('Error fetching spoilt votes:', error)
           );
-      }
+      });
 
-      // Call populateParties on page load
-      document.addEventListener('DOMContentLoaded', populateParties);
+      // Fetch the spoilt votes based on the selection
+      document
+        .getElementById('spoilt-provinces-button')
+        .addEventListener('click', () => {
+          // Show loading dialog
+          showLoadingDialog();
+
+          fetch(`/spoilt-provinces-votes`)
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              updateTable(data.headers, data.results);
+            })
+            .catch((error) =>
+              console.error('Error fetching spoilt votes:', error)
+            );
+        });
 
       // Fetch the party votes based on the selection
       document
