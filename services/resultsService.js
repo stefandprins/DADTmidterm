@@ -1,4 +1,12 @@
 const db = require('../models/db');
+
+// --------------------------------------------------------------------------------------------------------
+// https://www.bezkoder.com/node-js-rest-api-express-mysql/
+// https://github.com/LloydJanseVanRensburg/Node-MySQL-Tut/tree/master
+// I used these websites to help and determine the project structure.
+// I have also used some parts to program the services
+// --------------------------------------------------------------------------------------------------------
+
 // Function to query the database for the province names
 const getAllTurnoutMunicipalities = () => {
   return new Promise((resolve, reject) => {

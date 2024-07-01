@@ -1,5 +1,12 @@
 const resultsService = require('../services/resultsService');
 
+// --------------------------------------------------------------------------------------------------------
+// https://www.bezkoder.com/node-js-rest-api-express-mysql/
+// https://github.com/LloydJanseVanRensburg/Node-MySQL-Tut/tree/master
+// I used these websites to help and determine the project structure.
+// I have also used some parts to program the controller coding
+// --------------------------------------------------------------------------------------------------------
+
 // Function to take the response from the database and serve the getAllTurnoutMunicipalities to the page.
 const getAllTurnoutMunicipalities = async (req, res) => {
   try {

@@ -3,14 +3,15 @@ import pandas as pd
 import mysql.connector
 from mysql.connector import Error
 
-# ----------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
 # I have coded the database connection based on examples from youtube.
-# ----------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
 
 #  Function for reading the csv file.
 def read_csv(filepath):
 
     df = pd.read_csv(filepath)
+    # df = pd.read_parquet(filepath)
 
     filtered_df = df[df['Province'].str.strip() != 'Out of Country']
     
@@ -31,9 +32,9 @@ def db_connection(hostName, userName, userPassword, dbName):
         print(f'Error: {e}')
         return None
 
-# ----------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
 # I have coded this part and refactored the code into its own functions.
-# ----------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
 
 #  Function to execute the sql queries.
 def query_execute(cursor, sql, data=None):
@@ -227,11 +228,14 @@ def insert_results(cursor, db_conn, csvfile, voting_districts_ids, party_ids):
         query_executemany(cursor,insert_sql, batch)
 
 
-# ----------------------------------------------------
+# --------------------------------------------------------------------------------------------------------
+# Running the custom functions
+# --------------------------------------------------------------------------------------------------------
 
 
 # Path for the csv file
 electionResultsCSV = read_csv('data/National.csv')
+# electionResultsCSV = read_csv('data/file.parquet')
 
 
 # Connect with the database
@@ -242,7 +246,9 @@ db_conn = db_connection(
                         'election_results'
 )
 
-# 
+# Run the custom function when database is connected
+
+
 if db_conn.is_connected():
     cursor = db_conn.cursor()
 

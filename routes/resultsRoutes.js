@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const resultsController = require('../controllers/resultsController');
 
+// --------------------------------------------------------------------------------------------------------
+// I created these router paths, when called it will use the GET to retrieve the information from the database.
+// --------------------------------------------------------------------------------------------------------
+
 // routes for GET and POST
 // Route to display the voter turnout based on the municipalities
 router

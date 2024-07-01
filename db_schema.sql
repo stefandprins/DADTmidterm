@@ -1,3 +1,7 @@
+--
+-- I created the SQL queries for creating a database and inserting the tables.
+--
+
 -- Create the database called election_results.
 CREATE DATABASE IF NOT EXISTS election_results;
 
@@ -53,3 +57,9 @@ CREATE TABLE IF NOT EXISTS party_results (
     -- Define a composite primary key
     PRIMARY KEY (vd_numberID, partyID)
 );
+
+-- Create an index on these column names to improve speed
+CREATE INDEX idx_provinceID ON municipalities(provinceID);
+CREATE INDEX idx_municipalityID ON voting_districts(municipalityID);
+CREATE INDEX idx_vd_numberID ON voting_districts(vd_number);
+CREATE INDEX idx_partyID ON parties(partyID);
